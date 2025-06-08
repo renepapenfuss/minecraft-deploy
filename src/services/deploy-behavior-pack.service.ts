@@ -16,7 +16,7 @@ export async function deployBehaviorPack(
   type: string = "development_behavior_packs",
   remoteOptions: RemoteOptions,
 ): Promise<void> {
-  console.log(`Deploy behavior pack '${packName}' ...`, remoteOptions);
+  console.log(`Deploy behavior pack '${packName}' ...`);
 
   const behaviorPackZipPath = path.join(
     config.minecraftDirectoryPath,
