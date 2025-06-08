@@ -78,12 +78,19 @@ program
           "The path to the private key for SSH authentication",
         ).makeOptionMandatory(true),
       )
+      .addOption(
+        new Option(
+          "-b, --backup",
+          "Whether to create a backup of the existing pack before deploying",
+        ).default(false),
+      )
       .action(async (packName: string, remoteOptions) => {
         await deployBehaviorPack(packName, "development_behavior_packs", {
           host: remoteOptions.host,
           username: remoteOptions.username,
           remotePath: remoteOptions.remotePath,
           privateKeyPath: remoteOptions.privateKeyPath,
+          backup: remoteOptions.backup,
         });
       }),
   )
@@ -122,12 +129,19 @@ program
           "The path to the private key for SSH authentication",
         ).makeOptionMandatory(true),
       )
+      .addOption(
+        new Option(
+          "-b, --backup",
+          "Whether to create a backup of the existing pack before deploying",
+        ).default(false),
+      )
       .action(async (packName: string, remoteOptions) => {
         await deployResourcePack(packName, "development_resource_packs", {
           host: remoteOptions.host,
           username: remoteOptions.username,
           remotePath: remoteOptions.remotePath,
           privateKeyPath: remoteOptions.privateKeyPath,
+          backup: remoteOptions.backup,
         });
       }),
   );

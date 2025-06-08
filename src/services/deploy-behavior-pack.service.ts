@@ -3,12 +3,14 @@ import fs from "node:fs";
 import config from "../config";
 import Rsync from "rsync";
 import { Client } from "ssh2";
+import { format } from "date-fns";
 
 interface RemoteOptions {
   host: string;
   username: string;
   remotePath: string;
   privateKeyPath: string;
+  backup?: boolean;
 }
 
 export async function deployBehaviorPack(
@@ -24,12 +26,30 @@ export async function deployBehaviorPack(
     `${packName}.zip`,
   );
 
-  await _rsyncToRemote(behaviorPackZipPath, remoteOptions);
   await _runRemoteCommand(
     `
-    cd "${remoteOptions.remotePath}"
-    ls -la
-  `,
+    cd ${remoteOptions.remotePath}
+    docker compose down
+    `,
+    remoteOptions,
+  );
+
+  if (remoteOptions.backup) {
+    const date = format(new Date(), "yyyyMMddHHmmss");
+
+    await _runRemoteCommand(
+      `zip -r ${remoteOptions.remotePath}/data_${date}.zip ${remoteOptions.remotePath}/data`,
+      remoteOptions,
+    );
+  }
+
+  await _rsyncToRemote(behaviorPackZipPath, type, remoteOptions);
+
+  await _runRemoteCommand(
+    `
+    cd ${remoteOptions.remotePath}
+    docker compose up -d
+    `,
     remoteOptions,
   );
 
@@ -38,15 +58,15 @@ export async function deployBehaviorPack(
 
 function _rsyncToRemote(
   localFile: string,
+  type: string = "development_behavior_packs",
   remoteOptions: RemoteOptions,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const { username, host, remotePath: path } = remoteOptions;
-    const remote = `${username}@${host}:${path}/`;
+    const remote = `${username}@${host}:${path}/data/${type}`;
 
     const rsync = new Rsync()
       .flags("avz")
-      .set("progress")
       .source(localFile)
       .destination(remote);
 
