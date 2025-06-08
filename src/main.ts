@@ -1,8 +1,13 @@
+import { resolve } from "node:path";
+import { readFileSync } from "node:fs";
 import { Argument, Command, Option } from "commander";
 import { zipBehaviorPack } from "./services/zip-behavior-pack.servive";
 import { zipResourcePack } from "./services/zip-resource-pack.servive";
 import { deployBehaviorPack } from "./services/deploy-behavior-pack.service";
 import { deployResourcePack } from "./services/deploy-resource-pack.servicey";
+
+const packageJsonPath = resolve(__dirname, "../package.json");
+const { version } = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
 
 const program = new Command();
 
@@ -11,7 +16,7 @@ program
   .description(
     "A CLI to deploy locally developed addons for Minecraft Bedrock Edition.",
   )
-  .version("1.0.0")
+  .version(version)
   .addCommand(
     new Command("zip-behavior-pack")
       .description("zips a behavior pack")
